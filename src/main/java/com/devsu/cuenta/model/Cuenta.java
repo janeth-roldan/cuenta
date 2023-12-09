@@ -11,7 +11,7 @@ import java.util.UUID;
 @Table(name = "cuenta")
 public class Cuenta extends BaseModel {
 
-    @Column(name = "numero_cuenta")
+    @Column(name = "numero_cuenta", unique = true)
     private String numeroCuenta;
 
     @Column(name = "tipo_cuenta")

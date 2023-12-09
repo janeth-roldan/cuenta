@@ -41,16 +41,15 @@ public class MovimientoServiceImpl implements MovimientoService {
         Movimiento ultimoMovimiento = movimientoRepository.findTopByCuentaIdOrderByFechaDesc(cuentaId)
                 .orElse(null);
 
-        BigDecimal nuevoSaldo = (ultimoMovimiento != null) ?
-                ultimoMovimiento.getSaldo().add(movimientoRequest.getValor()) :
-                movimientoRequest.getValor();
-
-        if (nuevoSaldo.compareTo(BigDecimal.ZERO) < 0) {
-            throw new SaldoNoDisponibleException("Saldo no disponible.");
-        }
-
         Movimiento nuevoMovimiento = cuentaRepository.findById(cuentaId)
                 .map(cuenta -> {
+                    BigDecimal nuevoSaldo = (ultimoMovimiento != null) ?
+                            ultimoMovimiento.getSaldo().add(movimientoRequest.getValor()) :
+                            cuenta.getSaldoInicial().add(movimientoRequest.getValor());
+
+                    if (nuevoSaldo.compareTo(BigDecimal.ZERO) < 0) {
+                        throw new SaldoNoDisponibleException("Saldo no disponible.");
+                    }
                     Movimiento movimiento = movimientoMapper.convertToMovimiento(movimientoRequest);
                     movimiento.setCuenta(cuenta);
                     movimiento.setSaldo(nuevoSaldo);
